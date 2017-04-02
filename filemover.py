@@ -59,17 +59,22 @@ def findDate(text, fileProps):
 
 def renameFile(file, fileProps, fileDate):
     newFileName = fileProps["fileName"].replace('{DATE}', fileDate)
-    try:
-        os.rename(file, newFileName)
-    except Exception as e:
-        error = "Unable to rename file from %s to %s" % (file, newFileName)
-        print(error)
-        LOG.error(error)
-        raise e
+    if not os.path.exists(newFileName):
+        try:
+            os.rename(file, newFileName)
+        except Exception as e:
+            error = "Unable to rename file from %s to %s" % (file, newFileName)
+            LOG.exception(error)
+            print(error)
+            raise e
+        else:
+            success = "Successfully renamed file from %s to %s" % (file, newFileName)
+            LOG.info(success)
+            print(success)
     else:
-        success = "Successfully renamed file from %s to %s" % (file, newFileName)
-        LOG.info(success)
-        print(success)
+        error = "File already exists, will NOT overwrite : %s" % (newFileName)
+        LOG.error(error)
+        print(error)
 
 
 # Convert PDF to text
