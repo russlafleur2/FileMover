@@ -1,4 +1,5 @@
 {
+	"searchableDateFormats":[ "%m/%d/%Y", "%m/%d/%y", "%b %d , %Y", "%b %d, %Y" ],
 	"finalDateFormat": "%Y%m%d",
 	"logFile": "./fileMover.log",
 	"logLevel": "DEBUG",
@@ -6,7 +7,6 @@
 		"type": "FileType",
 		"search": "Regex String To Identify FileType",
 		"dateSearch": "Regex String To Identify The Date.*(\\d+/\\d+/\\d{4})",
-		"dateFormat": "%m/%d/%Y",
 		"fileName": "/Path/To/NewFile/Name - {DATE}.pdf"
 	}]
 }

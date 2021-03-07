@@ -18,7 +18,6 @@ Create a `config.json` file using the included sample as a starting point. For e
 * `"type"` - Name for the fileType
 * `"search"` - Regex for fileType identification
 * `"dateSearch"` - Regex for date identification (ex: `"Statement Date:.*(\\d+/\\d+/\\d{4})"`)
-* `"dateFormat"` - Format for the date to be used in the new file name (ex: `"%m/%d/%Y"`)
 * `"fileName"` - Destination path and name for the file - (ex: `"/Documents/Bills/Company Bill - {DATE}.pdf"`)
   * `{DATE}` will be replaced by the date found using by the `dateSearch` regex
 
