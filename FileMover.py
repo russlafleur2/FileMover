@@ -21,6 +21,7 @@ def main():
     for file in sys.argv[2:]:
         text = pdfToText(file)
         if text:
+            LOG.debug(text)
             processFile(file, text)
         else:
             error = 'File could not be parsed...'
@@ -31,7 +32,8 @@ def main():
 def processFile(file, text):
     # Loop through all the fileTypes in the config file to determine which type we have
     for fileProps in config["filePropertiesList"]:
-        match = re.search(re.escape(fileProps["search"]), text)
+        LOG.debug(fileProps["search"])
+        match = re.search(fileProps["search"], text, re.MULTILINE)
         if match:
             # If found fileType, now find the date
             fileDate = findDate(text, fileProps)
@@ -46,16 +48,23 @@ def processFile(file, text):
 
 
 def findDate(text, fileProps):
-    match = re.search(fileProps["dateSearch"], text)
+    match = re.search(fileProps["dateSearch"], text, re.MULTILINE)
     if match:
-        dateObj = datetime.strptime(match.group(1), fileProps["dateFormat"])
+        dateObj = tryParsingDate(match.group(1))
         return dateObj.strftime(config["finalDateFormat"])
     else:
-        error = 'Unable to find the date'
+        error = "(%s) - Unable to find the date" % (fileProps["type"])
         LOG.error(error)
         print(error)
         return None
 
+def tryParsingDate(text):
+    for searchableDateFormat in config["searchableDateFormats"]:
+        try:
+            return datetime.strptime(text, searchableDateFormat)
+        except ValueError:
+            pass
+    raise ValueError('no valid date format found')
 
 def renameFile(file, fileProps, fileDate):
     newFileName = fileProps["fileName"].replace('{DATE}', fileDate)
@@ -68,9 +77,10 @@ def renameFile(file, fileProps, fileDate):
             print(error)
             raise e
         else:
-            success = "Successfully renamed file from %s to %s" % (file, newFileName)
-            LOG.info(success)
-            print(success)
+            logSuccess = "Successfully renamed file from %s to %s" % (file, newFileName)
+            LOG.info(logSuccess)
+            printSuccess = "%s\n\nSuccessfully renamed & moved file to %s" % (fileProps["type"], newFileName)
+            print(printSuccess)
     else:
         error = "File already exists, will NOT overwrite : %s" % (newFileName)
         LOG.error(error)
@@ -80,7 +90,7 @@ def renameFile(file, fileProps, fileDate):
 # Convert PDF to text
 def pdfToText(file):
     try:
-        return subprocess.check_output(["/usr/local/bin/tika", "-v", "-t", file])
+        return subprocess.check_output(["/usr/local/bin/tika", "-t", file])
     except Exception as e:
         error = "Unable to parse text from PDF file - %s" % (file)
         LOG.exception(error)
